@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  host: db              # compose.yamlのサービス名と同じにする
+  user: postgres
+  password: password    # POSTGRES_PASSWORDと同じにする
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: iro_lank_development
+
+test:
+  <<: *default
+  database: iro_lank_test
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
