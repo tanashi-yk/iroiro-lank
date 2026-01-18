@@ -1,22 +1,31 @@
 class PredictionsController < ApplicationController
   def index
-    @predictions = Prediction.all
+    # 最新の大会を取得し、ボタンのリンク先や正答判定に使う
+    @competition = Competition.last
+    
+    if @competition
+      # 大会に紐づく予想を取得
+      @predictions = @competition.predictions.includes(:ranking_items)
+    else
+      # 大会が一つもない場合、エラー回避のために作成
+      @competition = Competition.create!(name: "第1回大会")
+      @predictions = []
+    end
   end
 
   def new
     @prediction = Prediction.new
-    # 6枠分の入力枠を準備
     6.times { @prediction.ranking_items.build }
   end
 
   def create
     @prediction = Prediction.new(prediction_params)
+    # 最初の大会に紐づける
     @prediction.competition = Competition.first || Competition.create!(name: "第1回大会")
 
     if @prediction.save
-      redirect_to "/predictions", notice: "予想を保存しました！"
+      redirect_to predictions_path, notice: "予想を保存しました！"
     else
-      Rails.logger.error "【保存失敗】: #{@prediction.errors.full_messages}"
       render :new, status: :unprocessable_entity
     end
   end
@@ -30,7 +39,6 @@ class PredictionsController < ApplicationController
   private
 
   def prediction_params
-    # :name とランキング項目の両方を許可
     params.require(:prediction).permit(
       :name,
       ranking_items_attributes: [:id, :color_code, :rank, :_destroy]

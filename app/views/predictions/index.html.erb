@@ -1,42 +1,54 @@
 <div class="index-container" style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: sans-serif; background-color: #D3D3D3; min-height: 100vh;">
   <h1 style="text-align: center; color: #333; margin-bottom: 20px;">みんなの予想</h1>
 
-  <% if notice %>
-    <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-      <%= notice %>
+  <%# --- 正解ヘッダー（正解がある時だけ表示） --- %>
+  <% if @competition&.answer_colors.present? %>
+    <div style="background: #FFD700; border: 3px solid #000; border-radius: 15px; padding: 15px; margin-bottom: 30px; box-shadow: 6px 6px 0 #b8860b;">
+      <h2 style="text-align: center; font-size: 18px; margin-bottom: 10px;">🏆 今回の正解 🏆</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+        <% @competition.answer_colors.each_with_index do |color, i| %>
+          <div style="text-align: center; width: 45px;">
+            <div style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: <%= color %>; border: 2px solid #000;"></div>
+            <span style="font-size: 10px; font-weight: bold;"><%= i + 1 %></span>
+          </div>
+        <% end %>
+      </div>
     </div>
   <% end %>
 
   <div class="prediction-history">
     <% @predictions.reverse_each do |prediction| %>
-      <div class="prediction-card" style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 2px solid #999;">
+      <% 
+        # 的中カウント用
+        correct_count = 0
+        if @competition&.answer_colors.present?
+          prediction.ranking_items.order(:rank).each_with_index do |item, index|
+            correct_count += 1 if item.color_code == @competition.answer_colors[index]
+          end
+        end
+      %>
+
+      <div class="prediction-card" style="position: relative; background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 2px solid #999;">
         
-        <%# --- 名前と削除ボタン --- %>
+        <%# --- 的中バッジ --- %>
+        <% if @competition&.answer_colors.present? %>
+          <div style="position: absolute; top: -10px; right: -10px; background: #ff4500; color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 10;">
+            <span style="font-size: 14px; font-weight: bold; line-height: 1;"><%= correct_count %></span>
+            <span style="font-size: 8px;">的中!</span>
+          </div>
+        <% end %>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-          <span style="font-size: 18px; font-weight: bold; color: #333;">
-            <%= prediction.name.presence || "無名の予想" %>
-          </span>
-          
-          <%= button_to "×", prediction_path(prediction), 
-              method: :delete, 
-              data: { turbo_confirm: "本当に消しちゃうよ？" }, 
-              style: "background: #ff4d4d; color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center;" %>
+          <span style="font-size: 18px; font-weight: bold; color: #333;"><%= prediction.name.presence || "無名の予想" %></span>
+          <%= button_to "×", prediction_path(prediction), method: :delete, data: { turbo_confirm: "本当に消しちゃうよ？" }, style: "background: #ff4d4d; color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; font-weight: bold;" %>
         </div>
         
-        <%# --- 6個で折り返す丸の並び --- %>
         <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start;">
-          <% prediction.ranking_items.order(:rank).each do |item| %>
+          <% prediction.ranking_items.order(:rank).each_with_index do |item, index| %>
+            <% is_correct = @competition&.answer_colors.present? && item.color_code == @competition.answer_colors[index] %>
             <div style="text-align: center; width: calc(100% / 6 - 8px); min-width: 45px; margin-bottom: 10px;">
-              <div style="
-                width: 100%;
-                aspect-ratio: 1/1;
-                border-radius: 50%;
-                background-color: <%= item.color_code %>;
-                border: 1px solid #ccc;
-                margin-bottom: 3px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-              "></div>
-              <span style="font-size: 10px; color: #888; font-weight: bold;"><%= item.rank %></span>
+              <div style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: <%= item.color_code %>; border: <%= is_correct ? '4px solid #ff4500' : '1px solid #ccc' %>; box-sizing: border-box; box-shadow: <%= is_correct ? '0 0 10px #ff4500' : 'none' %>;"></div>
+              <span style="font-size: 10px; font-weight: bold; color: <%= is_correct ? '#ff4500' : '#888' %>;"><%= item.rank %></span>
             </div>
           <% end %>
         </div>
@@ -44,14 +56,12 @@
     <% end %>
   </div>
 
-  <%# --- ボタンエリアを横並びに調整 --- %>
-  <div style="text-align: center; margin-top: 30px; padding-bottom: 50px; display: flex; gap: 15px; justify-content: center;">
-    
-    <%# トップに戻るボタン %>
-    <%= link_to "トップへ戻る", root_path, style: "background-color: #eee; color: #333; text-decoration: none; padding: 12px 24px; border: 2px solid #333; font-weight: bold; box-shadow: 4px 4px 0 #999; display: inline-block;" %>
-
-    <%# 新しく予想するボタン %>
-    <%= link_to "新しく予想する", new_prediction_path, style: "background-color: #fff; color: #000; text-decoration: none; padding: 12px 24px; border: 2px solid #000; font-weight: bold; box-shadow: 4px 4px 0 #000; display: inline-block;" %>
-    
+  <%# --- 下部ボタンエリア --- %>
+  <div style="text-align: center; margin-top: 30px; padding-bottom: 50px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+    <%= link_to "トップに戻る", root_path, style: "background-color: #eee; color: #333; text-decoration: none; padding: 12px 18px; border: 2px solid #333; font-weight: bold; box-shadow: 4px 4px 0 #999; font-size: 13px;" %>
+    <%= link_to "新しく予想する", new_prediction_path, style: "background-color: #fff; color: #000; text-decoration: none; padding: 12px 18px; border: 2px solid #000; font-weight: bold; box-shadow: 4px 4px 0 #000; font-size: 13px;" %>
+    <% if @competition %>
+      <%= link_to "正解を入力", edit_competition_path(@competition), style: "background-color: #FFD700; color: #000; text-decoration: none; padding: 12px 18px; border: 2px solid #000; font-weight: bold; box-shadow: 4px 4px 0 #b8860b; font-size: 13px;" %>
+    <% end %>
   </div>
 </div>

@@ -1,0 +1,40 @@
+<div style="max-width: 500px; margin: 0 auto; padding: 20px; font-family: sans-serif; background-color: #f0f0f0; min-height: 100vh;">
+  <h2 style="text-align: center;">🏆 正解（リザルト）を入力</h2>
+
+  <%= form_with model: @competition, local: true do |f| %>
+    <div id="answer-inputs">
+      <% 6.times do |i| %>
+        <div style="margin-bottom: 20px; background: white; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+          <p style="font-weight: bold; margin-bottom: 5px;"><%= i + 1 %>位の色</p>
+          <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px;">
+            <% ["#FF0000", "#0000FF", "#00FFFF", "#FFFF00", "#FFA500", "#008000", "#800000", "#FFFFFF", "#B8860B", "#000000", "#ADFF2F", "#000080"].each do |color| %>
+              <label style="cursor: pointer;">
+                <%# ここがポイント：name を順位(i)ごとに分けて独立させます %>
+                <input type="radio" 
+                       name="competition[answer_colors][<%= i %>]" 
+                       value="<%= color %>" 
+                       <%= 'checked' if @competition.answer_colors&.[](i) == color %> 
+                       style="display: none;">
+                <div class="color-box" style="background-color: <%= color %>; width: 100%; aspect-ratio: 1/1; border: 1px solid #ddd; transition: 0.2s;"></div>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; padding-bottom: 50px;">
+      <%= f.submit "正解を確定して結果を見る", style: "background: #333; color: white; padding: 15px 30px; border: none; font-weight: bold; font-size: 18px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 0 #000;" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  /* 選択された時の見た目 */
+  input[type="radio"]:checked + .color-box {
+    outline: 4px solid #000;
+    outline-offset: -4px;
+    transform: scale(0.9);
+    border-radius: 4px;
+  }
+</style>
