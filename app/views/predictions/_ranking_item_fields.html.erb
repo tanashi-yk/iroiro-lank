@@ -1,0 +1,18 @@
+<div class="prediction-item" style="margin-bottom: 25px;">
+  <h3 style="background-color: #B0B0B0; display: inline-block; padding: 5px 20px; font-size: 18px; margin-bottom: 10px; border: 1px solid #888; font-weight: bold;">
+    <%= f.index + 1 %>番目
+  </h3>
+  
+  <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: #fff; padding: 8px; border: 1px solid #999;">
+    <% [
+      "#FF0000", "#0000FF", "#00FFFF", "#FFFF00", "#FFA500", "#008000", 
+      "#800000", "#FFFFFF", "#B8860B", "#000000", "#ADFF2F", "#000080"
+    ].each do |color_code| %>
+      <label style="cursor: pointer;">
+        <%= f.radio_button :color_code, color_code, class: "swatch-radio" %>
+        <div class="swatch-cell" style="background-color: <%= color_code %>; width: 100%; aspect-ratio: 1/1; border: 1px solid #ccc; box-sizing: border-box;"></div>
+      </label>
+    <% end %>
+  </div>
+  <%= f.hidden_field :rank, value: f.index + 1 %>
+</div>

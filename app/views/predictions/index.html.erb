@@ -10,15 +10,23 @@
   <div class="prediction-history">
     <% @predictions.reverse_each do |prediction| %>
       <div class="prediction-card" style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 2px solid #999;">
-        <%# タイトル（名前）を表示 %>
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-          <%= prediction.name.presence || "無名の予想" %>
+        
+        <%# --- 名前と削除ボタン --- %>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+          <span style="font-size: 18px; font-weight: bold; color: #333;">
+            <%= prediction.name.presence || "無名の予想" %>
+          </span>
+          
+          <%= button_to "×", prediction_path(prediction), 
+              method: :delete, 
+              data: { turbo_confirm: "本当に消しちゃうよ？" }, 
+              style: "background: #ff4d4d; color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center;" %>
         </div>
         
-        <div style="display: flex; gap: 5px; justify-content: space-between;">
-          <%# 6つの丸を横に並べる %>
+        <%# --- 6個で折り返す丸の並び --- %>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start;">
           <% prediction.ranking_items.order(:rank).each do |item| %>
-            <div style="text-align: center; flex: 1;">
+            <div style="text-align: center; width: calc(100% / 6 - 8px); min-width: 45px; margin-bottom: 10px;">
               <div style="
                 width: 100%;
                 aspect-ratio: 1/1;
@@ -26,8 +34,9 @@
                 background-color: <%= item.color_code %>;
                 border: 1px solid #ccc;
                 margin-bottom: 3px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
               "></div>
-              <span style="font-size: 9px; color: #888;"><%= item.rank %></span>
+              <span style="font-size: 10px; color: #888; font-weight: bold;"><%= item.rank %></span>
             </div>
           <% end %>
         </div>
@@ -35,7 +44,7 @@
     <% end %>
   </div>
 
-  <div style="text-align: center; margin-top: 30px; padding-bottom: 30px;">
-    <%= link_to "新しく予想する", "/predictions/new", style: "background-color: #fff; color: #000; text-decoration: none; padding: 10px 20px; border: 2px solid #000; font-weight: bold;" %>
+  <div style="text-align: center; margin-top: 30px; padding-bottom: 50px;">
+    <%= link_to "新しく予想する", "/predictions/new", style: "background-color: #fff; color: #000; text-decoration: none; padding: 12px 24px; border: 2px solid #000; font-weight: bold; box-shadow: 4px 4px 0 #000; display: inline-block;" %>
   </div>
 </div>

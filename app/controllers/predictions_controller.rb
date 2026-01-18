@@ -21,6 +21,12 @@ class PredictionsController < ApplicationController
     end
   end
 
+  def destroy
+    @prediction = Prediction.find(params[:id])
+    @prediction.destroy
+    redirect_to predictions_path, notice: "予想を削除しました"
+  end
+
   private
 
   def prediction_params

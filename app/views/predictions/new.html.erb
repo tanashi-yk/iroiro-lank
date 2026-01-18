@@ -2,21 +2,19 @@
   
   <%= form_with model: @prediction, url: "/predictions", method: :post, local: true, data: { turbo: false } do |f| %>
     
-    <%# --- 名前/タイトル入力 --- %>
     <div style="margin-bottom: 30px;">
       <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">名前（またはタイトル）</h2>
       <%= f.text_field :name, placeholder: "例：私の予想", style: "width: 100%; padding: 12px; border: 1px solid #999; border-radius: 4px; font-size: 18px; box-sizing: border-box; background: white;" %>
     </div>
 
-    <%# --- 6枠分の色選択 --- %>
-    <div class="prediction-list">
+    <%# --- ここに枠が追加されます --- %>
+    <div id="prediction-items-container">
       <%= f.fields_for :ranking_items do |item_f| %>
-        <div style="margin-bottom: 25px;">
-          <h3 style="background-color: #B0B0B0; display: inline-block; padding: 5px 20px; font-size: 18px; margin-bottom: 10px; border: 1px solid #888; font-weight: bold;">
+        <div class="prediction-item" style="margin-bottom: 25px;">
+          <h3 class="item-number" style="background-color: #B0B0B0; display: inline-block; padding: 5px 20px; font-size: 18px; margin-bottom: 10px; border: 1px solid #888; font-weight: bold;">
             <%= item_f.index + 1 %>番目
           </h3>
           
-          <%# スウォッチ・グリッド（12色） %>
           <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: #fff; padding: 8px; border: 1px solid #999;">
             <% [
               "#FF0000", "#0000FF", "#00FFFF", "#FFFF00", "#FFA500", "#008000", 
@@ -28,21 +26,78 @@
               </label>
             <% end %>
           </div>
-          <%= item_f.hidden_field :rank, value: item_f.index + 1 %>
+          <%= item_f.hidden_field :rank, value: item_f.index + 1, class: "rank-input" %>
         </div>
       <% end %>
     </div>
 
-    <%# --- 保存ボタン --- %>
+    <%# --- 枠を増やすボタン --- %>
+    <div style="text-align: center; margin-bottom: 30px;">
+      <button type="button" id="add-item-button" style="background: #555; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #333;">
+        ＋ 枠を追加する
+      </button>
+    </div>
+
     <div style="margin-top: 50px; text-align: center;">
       <div style="background-color: #E0E0E0; border: 3px solid #000; padding: 20px; display: inline-block; width: 100%; box-sizing: border-box;">
         <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px; color: #000;">後戻りできないよ！</p>
         <%= f.submit "保存", style: "background: none; border: none; font-size: 32px; font-weight: bold; cursor: pointer; width: 100%; color: #000;" %>
       </div>
     </div>
-
   <% end %>
 </div>
 
 <style>
-  .sw
+  .swatch-radio { display: none; }
+  .swatch-radio:checked + .swatch-cell { outline: 4px solid #000; outline-offset: -4px; position: relative; z-index: 1; }
+  .swatch-cell[style*="#FFFFFF"] { border: 1px solid #aaa !important; }
+  #add-item-button:active { transform: translateY(2px); box-shadow: 0 2px 0 #333; }
+</style>
+
+<script>
+  // Railsの画面遷移(Turbo)でも動くようにする設定
+  const initAddButton = () => {
+    const addButton = document.getElementById("add-item-button");
+    const container = document.getElementById("prediction-items-container");
+    if (!addButton || !container) return;
+
+    // 前のイベントを消して二重登録を防ぐ
+    addButton.replaceWith(addButton.cloneNode(true));
+    const newAddButton = document.getElementById("add-item-button");
+
+    newAddButton.addEventListener("click", () => {
+      const items = container.querySelectorAll(".prediction-item");
+      const nextIndex = items.length;
+      const firstItem = items[0];
+      
+      // 新しいアイテムをコピー
+      const newItem = firstItem.cloneNode(true);
+      
+      // 表示番号の更新
+      newItem.querySelector(".item-number").innerText = (nextIndex + 1) + "番目";
+      
+      // ラジオボタンと隠しフィールドのname/id属性をすべて更新
+      const inputs = newItem.querySelectorAll("input");
+      inputs.forEach(input => {
+        // 属性内の [0] や _0_ を現在の数に書き換え
+        input.name = input.name.replace(/\[\d+\]/, `[${nextIndex}]`);
+        input.id = input.id.replace(/_\d+_/, `_${nextIndex}_`);
+        
+        if (input.type === "radio") {
+          input.checked = false;
+          // ラジオボタンのIDをユニークにする（これ重要）
+          input.id += `_${Math.random().toString(36).substr(2, 5)}`;
+        }
+        if (input.classList.contains("rank-input")) {
+          input.value = nextIndex + 1;
+        }
+      });
+
+      container.appendChild(newItem);
+    });
+  };
+
+  // ページ読み込み時とTurbo遷移時の両方で実行
+  document.addEventListener("DOMContentLoaded", initAddButton);
+  document.addEventListener("turbo:load", initAddButton);
+</script>
