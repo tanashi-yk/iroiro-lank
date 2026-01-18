@@ -1,21 +1,29 @@
 <div style="max-width: 500px; margin: 0 auto; padding: 20px; font-family: sans-serif; background-color: #f0f0f0; min-height: 100vh;">
-  <h2 style="text-align: center;">🏆 正解順位を入力</h2>
+  <h2 style="text-align: center; color: #333; font-weight: 900; margin-bottom: 25px;">🏆 正解順位を入力</h2>
 
   <%= form_with model: @competition, local: true do |f| %>
-    <div id="answer-inputs">
-      <% 6.times do |i| %>
-        <div style="margin-bottom: 20px; background: white; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
-          <p style="font-weight: bold; margin-bottom: 5px;"><%= i + 1 %>位の色</p>
-          <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px;">
-            <% ["#FF0000", "#0000FF", "#00FFFF", "#FFFF00", "#FFA500", "#008000", "#800000", "#FFFFFF", "#B8860B", "#000000", "#ADFF2F", "#000080"].each do |color| %>
+    <div id="answer-items-container">
+      <%# デフォルトで6枠、または既にそれ以上保存されている場合はその数分表示 %>
+      <% display_count = [@competition.answer_colors&.size || 0, 6].max %>
+      <% display_count.times do |i| %>
+        <div class="answer-item" style="margin-bottom: 25px;">
+          <h3 class="item-number" style="background-color: #B0B0B0; display: inline-block; padding: 5px 20px; font-size: 18px; margin-bottom: 10px; border: 1px solid #888; font-weight: bold;">
+            <%= i + 1 %>位
+          </h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: #fff; padding: 8px; border: 1px solid #999;">
+            <% [
+              "#FF0000", "#0000FF", "#00FFFF", "#FFFF00", "#FFA500", "#008000", 
+              "#800000", "#FFFFFF", "#B8860B", "#000000", "#ADFF2F", "#000080"
+            ].each do |color| %>
               <label style="cursor: pointer;">
-                <%# ここがポイント：name を順位(i)ごとに分けて独立させます %>
                 <input type="radio" 
                        name="competition[answer_colors][<%= i %>]" 
                        value="<%= color %>" 
                        <%= 'checked' if @competition.answer_colors&.[](i) == color %> 
+                       class="swatch-radio"
                        style="display: none;">
-                <div class="color-box" style="background-color: <%= color %>; width: 100%; aspect-ratio: 1/1; border: 1px solid #ddd; transition: 0.2s;"></div>
+                <div class="swatch-cell" style="background-color: <%= color %>; width: 100%; aspect-ratio: 1/1; border: 1px solid #ccc; box-sizing: border-box;"></div>
               </label>
             <% end %>
           </div>
@@ -23,18 +31,62 @@
       <% end %>
     </div>
 
-    <div style="text-align: center; margin-top: 30px; padding-bottom: 50px;">
-      <%= f.submit "正解を確定して結果を見る", style: "background: #333; color: white; padding: 15px 30px; border: none; font-weight: bold; font-size: 18px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 0 #000;" %>
+    <%# --- 枠を増やすボタン --- %>
+    <div style="text-align: center; margin-bottom: 30px;">
+      <button type="button" id="add-answer-button" style="background: #555; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #333;">
+        ＋ 順位を追加する
+      </button>
+    </div>
+
+    <div style="text-align: center; margin-top: 50px; padding-bottom: 50px;">
+      <div style="background-color: #E0E0E0; border: 3px solid #000; padding: 20px; display: inline-block; width: 100%; box-sizing: border-box;">
+        <%= f.submit "正解を確定して結果を見る", style: "background: none; border: none; font-size: 24px; font-weight: bold; cursor: pointer; width: 100%; color: #000;" %>
+      </div>
+      <%= link_to "キャンセル", predictions_path(competition_id: @competition.id), style: "display: block; margin-top: 20px; color: #666; text-decoration: none;" %>
     </div>
   <% end %>
 </div>
 
 <style>
-  /* 選択された時の見た目 */
-  input[type="radio"]:checked + .color-box {
-    outline: 4px solid #000;
-    outline-offset: -4px;
-    transform: scale(0.9);
-    border-radius: 4px;
+  .swatch-radio:checked + .swatch-cell { 
+    outline: 4px solid #000; 
+    outline-offset: -4px; 
+    position: relative; 
+    z-index: 1; 
+    transform: scale(0.95);
   }
+  .swatch-cell[style*="#FFFFFF"] { border: 1px solid #aaa !important; }
+  #add-answer-button:active { transform: translateY(2px); box-shadow: 0 2px 0 #333; }
 </style>
+
+<script>
+  const initAddAnswerButton = () => {
+    const addButton = document.getElementById("add-answer-button");
+    const container = document.getElementById("answer-items-container");
+    if (!addButton || !container) return;
+
+    addButton.replaceWith(addButton.cloneNode(true));
+    const newAddButton = document.getElementById("add-answer-button");
+
+    newAddButton.addEventListener("click", () => {
+      const items = container.querySelectorAll(".answer-item");
+      const nextIndex = items.length;
+      const firstItem = items[0];
+      const newItem = firstItem.cloneNode(true);
+      
+      newItem.querySelector(".item-number").innerText = (nextIndex + 1) + "位";
+      
+      const radios = newItem.querySelectorAll('input[type="radio"]');
+      radios.forEach(radio => {
+        radio.name = `competition[answer_colors][${nextIndex}]`;
+        radio.checked = false;
+        radio.id = `answer_color_${nextIndex}_${Math.random().toString(36).substr(2, 5)}`;
+      });
+
+      container.appendChild(newItem);
+    });
+  };
+
+  document.addEventListener("DOMContentLoaded", initAddAnswerButton);
+  document.addEventListener("turbo:load", initAddAnswerButton);
+</script>
