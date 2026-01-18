@@ -1,13 +1,21 @@
 <div class="prediction-container" style="max-width: 500px; margin: 0 auto; padding: 20px; font-family: sans-serif; background-color: #D3D3D3; min-height: 100vh;">
   
-  <%= form_with model: @prediction, url: "/predictions", method: :post, local: true, data: { turbo: false } do |f| %>
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #333; margin: 0;"><%= @competition.name %></h2>
+    <p style="color: #666; font-size: 14px;">予想を投稿しよう！</p>
+  </div>
+
+  <%# --- 修正点1: urlを固定せずRailsの自動判定に任せ、IDを隠しフィールドで送る --- %>
+  <%= form_with model: @prediction, local: true, data: { turbo: false } do |f| %>
+    
+    <%# --- 重要：どのイベントの予想かという情報を裏で持たせる --- %>
+    <%= f.hidden_field :competition_id, value: @competition.id %>
     
     <div style="margin-bottom: 30px;">
       <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">名前（またはタイトル）</h2>
-      <%= f.text_field :name, placeholder: "例：私の予想", style: "width: 100%; padding: 12px; border: 1px solid #999; border-radius: 4px; font-size: 18px; box-sizing: border-box; background: white;" %>
+      <%= f.text_field :name, placeholder: "例：私の予想", required: true, style: "width: 100%; padding: 12px; border: 1px solid #999; border-radius: 4px; font-size: 18px; box-sizing: border-box; background: white;" %>
     </div>
 
-    <%# --- ここに枠が追加されます --- %>
     <div id="prediction-items-container">
       <%= f.fields_for :ranking_items do |item_f| %>
         <div class="prediction-item" style="margin-bottom: 25px;">
@@ -43,6 +51,7 @@
         <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px; color: #000;">後戻りできないよ！</p>
         <%= f.submit "保存", style: "background: none; border: none; font-size: 32px; font-weight: bold; cursor: pointer; width: 100%; color: #000;" %>
       </div>
+      <%= link_to "キャンセル", predictions_path(competition_id: @competition.id), style: "display: block; margin-top: 20px; color: #666; text-decoration: none;" %>
     </div>
   <% end %>
 </div>
@@ -55,13 +64,11 @@
 </style>
 
 <script>
-  // Railsの画面遷移(Turbo)でも動くようにする設定
   const initAddButton = () => {
     const addButton = document.getElementById("add-item-button");
     const container = document.getElementById("prediction-items-container");
     if (!addButton || !container) return;
 
-    // 前のイベントを消して二重登録を防ぐ
     addButton.replaceWith(addButton.cloneNode(true));
     const newAddButton = document.getElementById("add-item-button");
 
@@ -69,23 +76,20 @@
       const items = container.querySelectorAll(".prediction-item");
       const nextIndex = items.length;
       const firstItem = items[0];
-      
-      // 新しいアイテムをコピー
       const newItem = firstItem.cloneNode(true);
       
-      // 表示番号の更新
       newItem.querySelector(".item-number").innerText = (nextIndex + 1) + "番目";
       
-      // ラジオボタンと隠しフィールドのname/id属性をすべて更新
       const inputs = newItem.querySelectorAll("input");
       inputs.forEach(input => {
-        // 属性内の [0] や _0_ を現在の数に書き換え
+        // competition_idフィールドは書き換えないようにガード
+        if (input.name.includes("competition_id")) return;
+
         input.name = input.name.replace(/\[\d+\]/, `[${nextIndex}]`);
         input.id = input.id.replace(/_\d+_/, `_${nextIndex}_`);
         
         if (input.type === "radio") {
           input.checked = false;
-          // ラジオボタンのIDをユニークにする（これ重要）
           input.id += `_${Math.random().toString(36).substr(2, 5)}`;
         }
         if (input.classList.contains("rank-input")) {
@@ -97,7 +101,6 @@
     });
   };
 
-  // ページ読み込み時とTurbo遷移時の両方で実行
   document.addEventListener("DOMContentLoaded", initAddButton);
   document.addEventListener("turbo:load", initAddButton);
 </script>

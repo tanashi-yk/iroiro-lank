@@ -23,16 +23,26 @@
     </p>
   </div>
 
-  
+  <%# --- 新しいイベントを始めるボタン --- %>
+  <div style="margin-bottom: 50px;">
+    <%= button_to competitions_path, method: :post, style: "background: #333; color: white; padding: 20px 40px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; transition: 0.2s;" do %>
+      🆕 新しいイベントを始める
+    <% end %>
+  </div>
 
   <hr style="border: 0; border-top: 2px dashed #ccc; margin-bottom: 40px;">
 
   <%# --- イベントごとのリンク --- %>
   <h3 style="font-size: 20px; color: #444; margin-bottom: 20px;">開催中のイベント</h3>
   <div style="display: grid; gap: 15px;">
-    <% if @competitions.any? %>
-      <% @competitions.each do |competition| %>
-        <%= link_to competition.name, predictions_path(competition_id: competition.id), style: "background: #fff; border: 2px solid #333; padding: 15px; border-radius: 10px; color: #333; text-decoration: none; font-weight: bold; font-size: 18px; display: block; transition: 0.2s;" %>
+    <% if @competitions&.any? %>
+      <% @competitions.reverse_each do |competition| %>
+        <%= link_to predictions_path(competition_id: competition.id), style: "background: #fff; border: 2px solid #333; padding: 15px; border-radius: 10px; color: #333; text-decoration: none; font-weight: bold; font-size: 18px; display: block; transition: 0.2s;" do %>
+          <%= competition.name %>
+          <span style="font-size: 12px; color: #999; display: block; font-weight: normal;">
+            <%= competition.created_at.strftime("%Y/%m/%d %H:%M") %>
+          </span>
+        <% end %>
       <% end %>
     <% else %>
       <p style="color: #999;">現在開催中のイベントはありません</p>
