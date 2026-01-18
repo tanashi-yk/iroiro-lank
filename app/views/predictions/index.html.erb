@@ -1,0 +1,41 @@
+<div class="index-container" style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: sans-serif; background-color: #D3D3D3; min-height: 100vh;">
+  <h1 style="text-align: center; color: #333; margin-bottom: 20px;">みんなの予想</h1>
+
+  <% if notice %>
+    <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="prediction-history">
+    <% @predictions.reverse_each do |prediction| %>
+      <div class="prediction-card" style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 2px solid #999;">
+        <%# タイトル（名前）を表示 %>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+          <%= prediction.name.presence || "無名の予想" %>
+        </div>
+        
+        <div style="display: flex; gap: 5px; justify-content: space-between;">
+          <%# 6つの丸を横に並べる %>
+          <% prediction.ranking_items.order(:rank).each do |item| %>
+            <div style="text-align: center; flex: 1;">
+              <div style="
+                width: 100%;
+                aspect-ratio: 1/1;
+                border-radius: 50%;
+                background-color: <%= item.color_code %>;
+                border: 1px solid #ccc;
+                margin-bottom: 3px;
+              "></div>
+              <span style="font-size: 9px; color: #888;"><%= item.rank %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div style="text-align: center; margin-top: 30px; padding-bottom: 30px;">
+    <%= link_to "新しく予想する", "/predictions/new", style: "background-color: #fff; color: #000; text-decoration: none; padding: 10px 20px; border: 2px solid #000; font-weight: bold;" %>
+  </div>
+</div>

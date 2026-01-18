@@ -5,16 +5,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: password
+
   web:
     build: .
-    command: bash -c "rm -f tmp/pids/server.pid && rails s -b 0.0.0.0"
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
-      - .:/iro_lank  # ←ここを修正
+      - .:/rails
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/iro_lank_development
+      DATABASE_URL: postgresql://postgres:password@db:5432/iro_lank_development
+
 volumes:
   postgres_data:

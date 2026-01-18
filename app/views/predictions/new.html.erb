@@ -1,0 +1,48 @@
+<div class="prediction-container" style="max-width: 500px; margin: 0 auto; padding: 20px; font-family: sans-serif; background-color: #D3D3D3; min-height: 100vh;">
+  
+  <%= form_with model: @prediction, url: "/predictions", method: :post, local: true, data: { turbo: false } do |f| %>
+    
+    <%# --- 名前/タイトル入力 --- %>
+    <div style="margin-bottom: 30px;">
+      <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">名前（またはタイトル）</h2>
+      <%= f.text_field :name, placeholder: "例：私の予想", style: "width: 100%; padding: 12px; border: 1px solid #999; border-radius: 4px; font-size: 18px; box-sizing: border-box; background: white;" %>
+    </div>
+
+    <%# --- 6枠分の色選択 --- %>
+    <div class="prediction-list">
+      <%= f.fields_for :ranking_items do |item_f| %>
+        <div style="margin-bottom: 25px;">
+          <h3 style="background-color: #B0B0B0; display: inline-block; padding: 5px 20px; font-size: 18px; margin-bottom: 10px; border: 1px solid #888; font-weight: bold;">
+            <%= item_f.index + 1 %>番目
+          </h3>
+          
+          <%# スウォッチ・グリッド（12色） %>
+          <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: #fff; padding: 8px; border: 1px solid #999;">
+            <% [
+              "#FF0000", "#0000FF", "#00FFFF", "#FFFF00", "#FFA500", "#008000", 
+              "#800000", "#FFFFFF", "#B8860B", "#000000", "#ADFF2F", "#000080"
+            ].each do |color_code| %>
+              <label style="cursor: pointer;">
+                <%= item_f.radio_button :color_code, color_code, class: "swatch-radio" %>
+                <div class="swatch-cell" style="background-color: <%= color_code %>; width: 100%; aspect-ratio: 1/1; border: 1px solid #ccc; box-sizing: border-box;"></div>
+              </label>
+            <% end %>
+          </div>
+          <%= item_f.hidden_field :rank, value: item_f.index + 1 %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# --- 保存ボタン --- %>
+    <div style="margin-top: 50px; text-align: center;">
+      <div style="background-color: #E0E0E0; border: 3px solid #000; padding: 20px; display: inline-block; width: 100%; box-sizing: border-box;">
+        <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px; color: #000;">後戻りできないよ！</p>
+        <%= f.submit "保存", style: "background: none; border: none; font-size: 32px; font-weight: bold; cursor: pointer; width: 100%; color: #000;" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>
+
+<style>
+  .sw

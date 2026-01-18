@@ -13,3 +13,35 @@
  *= require_tree .
  *= require_self
  */
+ <div class="container">
+  <h1>カラー予想入力</h1>
+
+  <%= form_with model: @prediction, local: true do |f| %>
+    
+    <%# もしEvent（イベント）との紐付けが必要なら、ここで隠しフィールドなどで送ります %>
+    <%= f.hidden_field :event_id, value: 1 %> 
+
+    <div class="prediction-list">
+      <%= f.fields_for :ranking_items do |item_f| %>
+        <div class="prediction-row">
+          <span class="rank-label"><%= item_f.index + 1 %>番目</span>
+          
+          <div class="swatches">
+            <%# ここに並べる色は、画面遷移図にある色を選んでください %>
+            <% ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF"].each do |color| %>
+              <label class="swatch-item">
+                <%= item_f.radio_button :color_code, color, class: "swatch-radio" %>
+                <span class="swatch-color" style="background-color: <%= color %>;"></span>
+              </label>
+            <% end %>
+          </div>
+          
+          <%# 順位を自動でセット %>
+          <%= item_f.hidden_field :rank, value: item_f.index + 1 %>
+        </div>
+      <% end %>
+    </div>
+
+    <%= f.submit "予想を保存する", class: "submit-btn" %>
+  <% end %>
+</div>
