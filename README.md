@@ -47,3 +47,7 @@
 * **データベース**: PostgreSQL
 * **開発環境**: Docker / Docker Compose
 * **デプロイ先**: Render (予定)
+
+### 画面遷移図
+https://www.figma.com/design/419ulI8Pn1L19e7kwgDwcj/%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB?node-id=0-1&t=asdrp7uirAfj249D-1
+
