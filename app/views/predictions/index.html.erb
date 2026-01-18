@@ -44,7 +44,14 @@
     <% end %>
   </div>
 
-  <div style="text-align: center; margin-top: 30px; padding-bottom: 50px;">
-    <%= link_to "新しく予想する", "/predictions/new", style: "background-color: #fff; color: #000; text-decoration: none; padding: 12px 24px; border: 2px solid #000; font-weight: bold; box-shadow: 4px 4px 0 #000; display: inline-block;" %>
+  <%# --- ボタンエリアを横並びに調整 --- %>
+  <div style="text-align: center; margin-top: 30px; padding-bottom: 50px; display: flex; gap: 15px; justify-content: center;">
+    
+    <%# トップに戻るボタン %>
+    <%= link_to "トップへ戻る", root_path, style: "background-color: #eee; color: #333; text-decoration: none; padding: 12px 24px; border: 2px solid #333; font-weight: bold; box-shadow: 4px 4px 0 #999; display: inline-block;" %>
+
+    <%# 新しく予想するボタン %>
+    <%= link_to "新しく予想する", new_prediction_path, style: "background-color: #fff; color: #000; text-decoration: none; padding: 12px 24px; border: 2px solid #000; font-weight: bold; box-shadow: 4px 4px 0 #000; display: inline-block;" %>
+    
   </div>
 </div>

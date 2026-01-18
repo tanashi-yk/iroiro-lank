@@ -1,0 +1,47 @@
+<div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #F5F5F5; min-height: 100vh; text-align: center;">
+
+  <%# --- メインコピー --- %>
+  <div style="margin-bottom: 40px;">
+    <p style="font-size: 18px; color: #666; margin-bottom: 5px; font-weight: bold;">色でいろんな順位を予想！</p>
+    <p style="font-size: 18px; color: #666; margin-bottom: 20px; font-weight: bold;">誰がいちばん当たるかな？</p>
+    <h1 style="font-size: 50px; font-weight: 900; color: #333; margin: 0; letter-spacing: 2px; line-height: 1.2;">
+      <span style="color: #FF0000;">色</span><span style="color: #0000FF;">い</span><span style="color: #00FFFF;">ろ</span><span style="color: #FF00FF;">順</span><span style="color: #FFA500;">位</span>
+    </h1>
+  </div>
+
+  <%# --- ボディコピー --- %>
+  <div style="background: white; padding: 30px 20px; border-radius: 15px; border: 2px solid #333; margin-bottom: 40px; line-height: 1.8; text-align: left; box-shadow: 6px 6px 0 #999;">
+    <p style="margin-bottom: 15px; font-weight: bold; color: #444;">
+      スポーツだったら球団カラーやユニフォーム<br>
+      お笑いだったらスーツの色<br>
+      アイドルだったらメンバーカラー
+    </p>
+    <p style="font-size: 15px; color: #666;">
+      人やものを表す色を選んでその順位や並びを予想するアプリです。<br>
+      結果が出たら見比べて誰の予想が当たってるか？みんなで盛り上がろう！<br>
+      ＜イベントはURLで管理するのでお気に入りに控えておいてください＞
+    </p>
+  </div>
+
+  
+
+  <hr style="border: 0; border-top: 2px dashed #ccc; margin-bottom: 40px;">
+
+  <%# --- イベントごとのリンク --- %>
+  <h3 style="font-size: 20px; color: #444; margin-bottom: 20px;">開催中のイベント</h3>
+  <div style="display: grid; gap: 15px;">
+    <% if @competitions.any? %>
+      <% @competitions.each do |competition| %>
+        <%= link_to competition.name, predictions_path(competition_id: competition.id), style: "background: #fff; border: 2px solid #333; padding: 15px; border-radius: 10px; color: #333; text-decoration: none; font-weight: bold; font-size: 18px; display: block; transition: 0.2s;" %>
+      <% end %>
+    <% else %>
+      <p style="color: #999;">現在開催中のイベントはありません</p>
+    <% end %>
+  </div>
+
+</div>
+
+<style>
+  a:hover { opacity: 0.8; transform: translateY(-2px); }
+  a:active { transform: translateY(2px); box-shadow: none; }
+</style>

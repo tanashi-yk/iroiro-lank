@@ -1,7 +1,14 @@
 Rails.application.routes.draw do
-  # 個別の get ... などをすべて消して、これ一行にします
-  resources :predictions
+  # アプリのトップページを pages コントローラーの top アクションに設定
+  root 'pages#top'
 
-  # 動作確認用（残しておいてOK）
-  get "up" => "rails/health#show", as: :rails_health_check
+  # 予想（Predictions）に関するすべてのルート
+  resources :predictions do
+    collection do
+      # 必要に応じて後で「正解入力画面」などを追加する場所
+    end
+  end
+
+  # イベント（Competitions）に関するルート
+  resources :competitions, only: [:index, :show]
 end
