@@ -28,7 +28,7 @@
     <%= form_with model: Competition.new, local: true do |f| %>
       <div style="text-align: left; margin-bottom: 15px;">
         <label style="font-weight: bold; color: #333; display: block; margin-bottom: 10px;">🆕 新しい順位タイトルを入力</label>
-        <%= f.text_field :name, placeholder: "例：好きなアイスの味ランキング", required: true, style: "width: 100%; padding: 15px; border: 2px solid #ccc; border-radius: 10px; font-size: 18px; box-sizing: border-box; width: 100%;" %>
+        <%= f.text_field :name, placeholder: "例：セ・リーグ順位", required: true, style: "width: 100%; padding: 15px; border: 2px solid #ccc; border-radius: 10px; font-size: 18px; box-sizing: border-box; width: 100%;" %>
       </div>
       <%= f.submit "作成して開始する", style: "background: #333; color: white; padding: 15px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; width: 100%;" %>
     <% end %>
