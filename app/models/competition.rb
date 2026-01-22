@@ -1,6 +1,7 @@
 class Competition < ApplicationRecord
-  has_many :predictions
+  # dependent: :destroy を追加して、予想データも一緒に消えるようにします
+  has_many :predictions, dependent: :destroy
   
-  # これを追記：色の配列をそのまま保存・復元できるようにします
+  # 色の配列保存の設定（そのまま残します）
   serialize :answer_colors, type: Array, coder: JSON
 end
