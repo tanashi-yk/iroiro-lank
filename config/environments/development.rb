@@ -80,5 +80,10 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   config.hosts << "iro-rank.onrender.com"
-  config.hosts << "iro-rank.onrender.com"
+
+  config.after_initialize do
+    if ENV['RENDER']
+      ActiveRecord::Tasks::DatabaseTasks.migrate
+    end
+  end
 end
