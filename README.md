@@ -53,3 +53,4 @@ https://www.figma.com/design/419ulI8Pn1L19e7kwgDwcj/%E7%94%BB%E9%9D%A2%E9%81%B7%
 
 ### ER図
 [![ER図](er_diagram.png)](er_diagram.md)
+URLはグーグルドライブのエラーにより発行できませんでしたので画像を直接貼りました
